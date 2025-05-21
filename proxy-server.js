@@ -19,6 +19,20 @@ app.use('/proxy', async (req, res) => {
         };
 
         const proxyReq = http.request(options, (proxyRes) => {
+            console.log(`[${new Date().toISOString()}] Response from ${targetUrl}:`);
+            console.log(`Status Code: ${proxyRes.statusCode}`);
+            console.log('Headers:', proxyRes.headers);
+
+            let responseBody = '';
+            proxyRes.on('data', (chunk) => {
+                responseBody += chunk;
+            });
+
+            proxyRes.on('end', () => {
+                console.log('Response Body:', responseBody);
+                console.log('----------------------------------------');
+            });
+
             res.writeHead(proxyRes.statusCode, proxyRes.headers);
             proxyRes.pipe(res);
         });
