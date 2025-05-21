@@ -1,6 +1,9 @@
 const express = require('express');
 const app = express();
 
+// Add body-parser middleware
+app.use(express.json());
+
 app.use('/proxy', async (req, res) => {
     const targetUrl = req.query.url;
 
@@ -16,6 +19,10 @@ app.use('/proxy', async (req, res) => {
             port: parsedUrl.port || 80,
             path: parsedUrl.pathname + parsedUrl.search,
             method: 'POST',
+            headers: {
+                ...req.headers,
+                host: parsedUrl.hostname
+            }
         };
 
         const proxyReq = http.request(options, (proxyRes) => {
@@ -42,6 +49,11 @@ app.use('/proxy', async (req, res) => {
             res.status(502).send('Proxy error');
         });
 
+        // Forward the request body
+        if (req.body) {
+            const bodyData = JSON.stringify(req.body);
+            proxyReq.write(bodyData);
+        }
         proxyReq.end();
     } catch (err) {
         res.status(500).send('Internal error');
