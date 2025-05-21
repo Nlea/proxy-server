@@ -15,7 +15,7 @@ app.use('/proxy', async (req, res) => {
             hostname: parsedUrl.hostname,
             port: parsedUrl.port || 80,
             path: parsedUrl.pathname + parsedUrl.search,
-            method: 'GET',
+            method: 'POST',
         };
 
         const proxyReq = http.request(options, (proxyRes) => {
